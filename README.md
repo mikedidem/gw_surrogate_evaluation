@@ -29,9 +29,12 @@ Three surrogate models are implemented and compared against MODFLOW:
 gw-surrogate-eval/
 ├── gw_mod/
 │   └── cnn/                        # CNN surrogate
-│       ├── cnn_modflow surogate_1.py   # Training and evaluation script
+│       ├── cnn_groundwater.py   # Training and evaluation script
 │       ├── utils.py                    # Metrics and plotting utilities
 │       └── data/                       # MODFLOW snapshots (t0.25.txt … t30.txt)
+└── convLSTM/                        # ConvLSTM surrogate
+│       ├── convlstm_groundwater.py   # Training and evaluation script
+│ 
 ├── unconfined_m/                   # GW-PINN (two-stage)
 │   ├── trainer.py                  # Training script
 │   ├── tester.py                   # Evaluation script
