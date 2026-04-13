@@ -1,0 +1,6 @@
+
+# ./trainer.py --epochs_Adam 1000 --epochs_LBFGS 4000 --sigma 10 --lr 0.01 --lam 1 --cuda_index 1
+Can get good result
+
+# ./trainer.py --epochs_Adam 1000 --epochs_LBFGS 2000 --sigma 5 --lr 0.01 --lam 1 --cuda_index 1 --nt 50 --base 5
+bad result obtained, maybe due to the small sigma
