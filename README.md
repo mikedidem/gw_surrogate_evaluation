@@ -1,7 +1,6 @@
 # Groundwater Surrogate Modeling — Evaluation Framework
 
-Companion code for the paper: *"Accuracy Is Not Enough: A Physics-Informed Evaluation Framework
-for Groundwater Surrogate Models"*
+Companion code for the paper: *"Beyond Enough: Evaluating Physical Consistency in Deep Learning Groundwater Surrogates"*
 
 Three surrogate models are implemented and compared against MODFLOW:
 
