@@ -145,6 +145,8 @@ src/
 
 experiments/             noise sweep, collocation and supervision sweeps,
                          receptive-field ablation, architecture study
+notebooks/               one demo notebook per surrogate: train briefly,
+                         evaluate, read the result
 tests/                   diagnostics self-checks
 docs/                    images embedded above
 ```
@@ -196,7 +198,9 @@ expected layout:
 
 All three surrogates read benchmark data from `GW_DATA`; see [Data
 availability](#data-availability). Each command below trains the reported
-configuration.
+configuration; [`notebooks/`](notebooks/) has the same commands as short,
+runnable demos -- a few minutes on a CPU, undertrained on purpose, evaluated at
+the end so the pipeline is visibly exercised end to end.
 
 ### PINN
 
