@@ -192,6 +192,96 @@ expected layout:
 | `diagnostic_results/` | one export per evaluated arm |
 | `predictions/` | surrogate head fields, in absolute metres |
 
+## Training a model
+
+All three surrogates read benchmark data from `GW_DATA`; see [Data
+availability](#data-availability). Each command below trains the reported
+configuration.
+
+### PINN
+
+`src/pinn/b1/` and `src/pinn/b2/` are separate, self-contained trees -- the
+benchmark is selected by which directory you run from, not by a flag, so a B1
+run can never pick up a B2 configuration by accident. Training is two stages:
+stage 1 covers the short initial window, stage 2 covers the full horizon and
+resumes from stage 1's checkpoint.
+
+A quick check that the pipeline runs, with points sampled on the fly rather
+than from a precomputed collocation cloud:
+
+```bash
+cd src/pinn/b2
+python train.py --stage 1 --chrono --constraint HARD \
+    --spatial_strategy UNIFORM --nx 40 --ny 40 \
+    --temporal_strategy LHS --nt 10 --tau 1 --sigma 30 \
+    --anchor_pattern "$GW_DATA/benchmarks/b2/sdata/t*.txt" \
+    --field_pattern  "$GW_DATA/benchmarks/b2/t*.txt" \
+    --epochs_Adam 5 --epochs_LBFGS 0 --alpha_fixed 0.05
+```
+
+The reported arms use `--spatial_strategy LR` instead, which draws from a
+precomputed locally-refined collocation cloud (`--filename`, a `.mat` file)
+distributed with the rest of the data, at the full `nt = 50` and epoch budget:
+
+```bash
+python train.py --stage 1 --chrono --constraint HARD \
+    --spatial_strategy LR --filename "$GW_DATA/<collocation cloud>.mat" \
+    --temporal_strategy LHS --nt 50 --tau 1 --sigma 30 \
+    --anchor_pattern "$GW_DATA/benchmarks/b2/sdata/t*.txt" \
+    --field_pattern  "$GW_DATA/benchmarks/b2/t*.txt" \
+    --epochs_Adam 4000 --epochs_LBFGS 1000 \
+    --alpha_fixed 0.05 --lbfgs_line_search --lbfgs_div_retries 3
+
+python train.py --stage 2 --chrono --constraint HARD \
+    --spatial_strategy LR --filename "$GW_DATA/<collocation cloud>.mat" \
+    --temporal_strategy LHS --nt 50 --tau 1 --sigma 30 \
+    --anchor_pattern "$GW_DATA/benchmarks/b2/sdata/t*.txt" \
+    --field_pattern  "$GW_DATA/benchmarks/b2/t*.txt" \
+    --epochs_Adam 4000 --epochs_LBFGS 1000 \
+    --alpha_fixed 0.05 --lbfgs_line_search --lbfgs_div_retries 3
+
+python test.py --stage 2 --constraint HARD --spatial_strategy LR --sigma 30
+```
+
+See [`experiments/README.md`](experiments/README.md) for the collocation-density,
+supervision-density and noise sweeps this trainer also runs, and for what each
+flag controls.
+
+### CNN
+
+The reported architecture (C48-RF127: six dilated convolutions, 48 channels,
+receptive field 127 cells) is trained through the receptive-field driver, which
+wraps `src/cnn/cnn_surrogate.py` and controls its dilation schedule directly:
+
+```bash
+python experiments/receptive_field_ablation/run_receptive_field_ablation.py \
+    --benchmark b2 --arm unconstrained \
+    --dilations 1,2,4,8,16,32 --channels 48 --epochs 300 --diagnostics
+```
+
+`src/cnn/cnn_surrogate.py` is also runnable directly and is the canonical
+implementation the driver imports; its own `--arch` flag exposes two fixed
+configurations (`plain`, the original 3-layer, 7-cell model, and `dilated`, an
+8-layer 511-cell model) rather than the six-layer 48-channel one reported in
+the paper, which is why the driver is the way to reproduce that number
+specifically.
+
+### ConvLSTM
+
+The reported architecture (dilated, sequence length 3, 32 hidden channels, 5x5
+kernel, dilation 4, one recurrent layer) is the `dilated_seq3` variant:
+
+```bash
+python experiments/architecture_study/run_convlstm_architecture_study.py \
+    --benchmark b2 --arm unconstrained --variant dilated_seq3 \
+    --epochs 200 --diagnostics
+```
+
+Both drivers write `test_predictions/` (and `rollout_predictions/` for the
+autoregressive arm) under their own `outputs/`, in the layout the diagnostics
+evaluators expect directly -- no reformatting step between training and
+evaluation.
+
 ---
 
 ## Reproducing a result
