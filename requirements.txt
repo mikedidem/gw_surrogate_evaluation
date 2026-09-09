@@ -1,0 +1,19 @@
+# Runtime dependencies for training, evaluation and figures.
+#
+# Pinned to the versions the reported runs used. Install PyTorch for your own
+# CUDA build from https://pytorch.org if 2.11.0+cu128 does not match your
+# hardware; nothing here depends on that exact build.
+
+numpy==2.1.3
+scipy>=1.11
+pandas>=2.0
+torch==2.11.0
+matplotlib>=3.8
+tensorboardX>=2.6
+
+# Benchmark generation only. Also needs a MODFLOW-2005 executable on PATH, or
+# MF2005_EXE naming it.
+flopy>=3.5
+
+# Tests
+pytest>=8.0

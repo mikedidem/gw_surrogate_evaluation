@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the paper below."
+title: "Conservation diagnostics for deep learning groundwater surrogates"
+abstract: >-
+  Companion code for a diagnostic framework that evaluates deep-learning
+  groundwater surrogates on governing-equation residuals, boundary-condition
+  compliance, boundary-gradient direction and mass-balance closure alongside
+  predictive accuracy, applied to CNN, ConvLSTM and physics-informed surrogates
+  on two MODFLOW benchmarks.
+type: software
+repository-code: "https://github.com/mikedidem/gw_surrogate_evaluation"
+authors:
+  - family-names: Edidem
+    given-names: Michael
+    affiliation: "Southern Illinois University, Carbondale"
+  - family-names: Li
+    given-names: Ruopu
+    affiliation: "Southern Illinois University, Carbondale"
+  - family-names: Kharazi
+    given-names: Pouria
+    affiliation: "Southern Illinois University, Carbondale"
+keywords:
+  - groundwater
+  - surrogate modeling
+  - physics-informed neural networks
+  - MODFLOW
+  - conservation diagnostics
+preferred-citation:
+  type: article
+  title: >-
+    Beyond Accuracy: Conservation Diagnostics for Deep Learning Groundwater
+    Surrogates
+  journal: "Computers and Geosciences"
+  authors:
+    - family-names: Edidem
+      given-names: Michael
+      affiliation: "Southern Illinois University, Carbondale"
+    - family-names: Li
+      given-names: Ruopu
+      affiliation: "Southern Illinois University, Carbondale"
+    - family-names: Kharazi
+      given-names: Pouria
+      affiliation: "Southern Illinois University, Carbondale"

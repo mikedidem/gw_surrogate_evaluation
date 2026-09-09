@@ -1,0 +1,15 @@
+# Normalise line endings in the repository; check out native.
+* text=auto
+
+*.py    text diff=python
+*.md    text
+*.txt   text
+*.cff   text
+*.yml   text
+*.sh    text eol=lf
+
+*.ipynb text
+*.png   binary
+*.pdf   binary
+*.mat   binary
+*.hds   binary
