@@ -19,10 +19,9 @@ chronological split, leakage audit and solver guards carry over unaltered:
 The well is a Gaussian of sigma = 30 m at the domain centre carrying
 -40,000 m3/d, matching the field the B1 CNN and ConvLSTM were trained on.
 
-h_initial() must match the initial head used to build the MODFLOW model:
-benchmarks/b1/gen_b1_center.py uses a uniform strt = 90.0 m, which is what
-h_initial() returns once the gradient is flattened. If the two differ they are
-solving different problems.
+h_initial() must match the initial head used to build the MODFLOW model, a
+uniform strt = 90.0 m, which is what h_initial() returns once the gradient is
+flattened. If the two differ they are solving different problems.
 
 Coordinates are centred, x, y in [-500, 500]. MODFLOW exports are shifted by
 -500 on load, so the two frames agree.

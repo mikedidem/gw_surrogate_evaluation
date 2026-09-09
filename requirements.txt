@@ -11,9 +11,5 @@ torch==2.11.0
 matplotlib>=3.8
 tensorboardX>=2.6
 
-# Benchmark generation only. Also needs a MODFLOW-2005 executable on PATH, or
-# MF2005_EXE naming it.
-flopy>=3.5
-
 # Tests
 pytest>=8.0

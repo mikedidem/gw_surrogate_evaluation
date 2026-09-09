@@ -3,8 +3,8 @@
 Companion code for:
 
 > **Beyond Accuracy: Conservation Diagnostics for Deep Learning Groundwater
-> Surrogates.** Michael Edidem, Ruopu Li, Pouria Kharazi.
-> *Computers and Geosciences.*
+> Surrogates.** Michael Edidem, Ruopu Li, Pouria Kharazi. Manuscript under
+> review.
 
 A deep-learning surrogate can reproduce hydraulic head to R² > 0.999 and still
 violate the physics it was trained on. This repository implements a diagnostic
@@ -22,7 +22,7 @@ evaluated single-step; the physics-informed model is a direct spatiotemporal
 query, so no stepping is involved. Head RMSE and the residual ratio are means
 over the window, and mass error is the mean absolute residual over it as a
 percentage of the imposed extraction. Every number is produced by the code in
-this repository; see [Reproducing a number](#reproducing-a-number).
+this repository; see [Reproducing a result](#reproducing-a-result).
 
 | Benchmark | Model | Head RMSE (m) | R² | PDE residual ratio | Mass error (% of well) |
 |---|---|---:|---:|---:|---:|
@@ -64,11 +64,8 @@ no-flow east and west.
 
 The B2 lens sits between the well and the upgradient boundary, so it throttles
 the well's principal supply. Because K varies in space, the Boussinesq operator
-gains a term `h (∇K · ∇h)`; `problem.py` returns K together with its analytic
-gradient for that reason.
-
-Generate them with `benchmarks/b1/gen_b1.py` and `benchmarks/b2/gen_b2.py`,
-which require `flopy` and a MODFLOW-2005 executable.
+gains a term $h\,(\nabla K \cdot \nabla h)$; `problem.py` returns K together
+with its analytic gradient for that reason.
 
 ---
 
@@ -86,17 +83,19 @@ The physics-informed model has no single-step/rollout distinction: it is queried
 at (x, y, t) directly, so there is nothing to roll out.
 
 Its Dirichlet and initial conditions hold identically by construction, through a
-multiplicative trial function
+multiplicative trial function:
 
-```
-d = ((t - t_min)(y_max - y)(y - y_min)) / ((t_max - t_min)(y_max - y_min)²)
-h = h* + d · u
-```
+$$
+d = \frac{(t - t_{\min})(y_{\max} - y)(y - y_{\min})}
+         {(t_{\max} - t_{\min})(y_{\max} - y_{\min})^2}
+\qquad\qquad
+h = h^{*} + d \cdot u
+$$
 
-where `d` vanishes at `t = t_min` and at both y boundaries whatever the network
-outputs. `src/constrained.py` applies the gridded analogue of the same idea to
-the CNN and ConvLSTM, so that boundary enforcement can be tested independently
-of the PDE residual term.
+where $d$ vanishes at $t = t_{\min}$ and at both $y$ boundaries whatever the
+network outputs $u$. `src/constrained.py` applies the gridded analogue of the
+same idea to the CNN and ConvLSTM, so that boundary enforcement can be tested
+independently of the PDE residual term.
 
 ---
 
@@ -144,11 +143,10 @@ src/
   constrained.py         hard Dirichlet enforcement for the gridded models
   paths.py               data-root resolution, used everywhere
 
-benchmarks/b1/, b2/      MODFLOW generators
 experiments/             noise sweep, collocation and supervision sweeps,
                          receptive-field ablation, architecture study
 tests/                   diagnostics self-checks
-docs/                    figures used by this README
+docs/                    images embedded above
 ```
 
 B1 and B2 keep separate PINN trees deliberately. They differ only in
@@ -166,8 +164,7 @@ pip install -r requirements.txt
 ```
 
 Training was run on Python 3.13 with PyTorch 2.11.0+cu128, CUDA 12.8 and NumPy
-2.1.3, on a single Tesla T4. Regenerating the benchmarks additionally needs
-`flopy` and a MODFLOW-2005 executable on `PATH`, or `MF2005_EXE` naming it.
+2.1.3, on a single Tesla T4.
 
 ---
 
@@ -175,48 +172,49 @@ Training was run on Python 3.13 with PyTorch 2.11.0+cu128, CUDA 12.8 and NumPy
 
 This repository holds **code only**. The MODFLOW models, exported head
 snapshots, trained checkpoints and diagnostic exports run to several gigabytes
-and are distributed through the Open Science Framework project accompanying the
-paper.
+and are distributed separately.
 
-Point `GW_DATA` at that tree:
+Point the `GW_DATA` environment variable at wherever that data lives locally:
 
 ```bash
 export GW_DATA=/path/to/gw_surrogate_data      # Linux, macOS
 set     GW_DATA=D:\gw_surrogate_data           # Windows
 ```
 
-If `GW_DATA` is unset, `./data` is used, so a copy or symlink placed there needs
-no configuration. The expected layout is:
+If `GW_DATA` is unset, `./data` is used instead, so a local copy or symlink
+placed there needs no configuration. `src/paths.py` is the single place any of
+this is resolved; nothing else in the codebase hard-codes a location. The
+expected layout:
 
-```
-benchmarks/b1/, benchmarks/b2/   MODFLOW models and t*.txt snapshots
-diagnostic_results/              one directory per evaluated arm
-predictions/                     surrogate head fields, absolute metres
-```
-
-`src/paths.py` is the single place any of this is resolved.
+| Path under `GW_DATA` | Contents |
+|---|---|
+| `benchmarks/b1/`, `benchmarks/b2/` | MODFLOW models and `t*.txt` head snapshots |
+| `diagnostic_results/` | one export per evaluated arm |
+| `predictions/` | surrogate head fields, in absolute metres |
 
 ---
 
-## Reproducing a number
+## Reproducing a result
 
-The MODFLOW self-check is the cheapest end-to-end test: evaluating the
-reference data against itself must give zero head error and a residual ratio of
-exactly one.
+Two checks, cheapest first.
+
+**Self-check.** Evaluating the reference data against itself must return zero
+head error and a residual ratio of exactly one -- no surrogate involved, so this
+only exercises the diagnostic pipeline itself:
 
 ```bash
 export GW_DATA=/path/to/gw_surrogate_data
 python -m pytest tests/ -q
 ```
 
-The tests skip cleanly when the data tree is absent.
+It skips cleanly if the data tree isn't present.
 
-To reproduce a table entry, run the evaluator on that arm's predictions and read
-the field from `summary.json`. For the B2 CNN row above:
+**A table entry.** Run the matching evaluator on that arm's predictions and read
+the result from `summary.json`. For the B2 CNN row above:
 
 ```bash
 python src/diagnostics/evaluate_b2.py \
-    --prediction-dir  "$GW_DATA/predictions/gw_mod/cnn_receptive_field_ablation/outputs/b2/rf127_c48_d1-2-4-8-16-32/unconstrained/seed42/test_predictions" \
+    --prediction-dir  "$GW_DATA/predictions/<model>/test_predictions" \
     --output-dir      out/b2_cnn \
     --model-name      "CNN B2 unconstrained" \
     --prediction-mode one-step
@@ -229,9 +227,9 @@ summary.pde_residual.model_to_modflow_rmse_ratio  137.888
 summary.mass_balance.mean_abs_percent_of_well     62.41
 ```
 
-Every figure in the paper is drawn from these exports, and each drawn value is
-checked against the statistic its export recorded before it is plotted, so a
-figure cannot drift from the table beside it.
+matching the B2 CNN row above. Every reported result is drawn from an export
+this way, and each value is checked against the statistic its export recorded
+before being reported, so nothing here can drift from the table it sits beside.
 
 ---
 

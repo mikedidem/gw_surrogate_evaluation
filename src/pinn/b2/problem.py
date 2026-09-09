@@ -18,9 +18,9 @@ B2 differs from B1 in two respects:
      so this profile solves the homogeneous steady problem exactly and
      satisfies both boundary conditions identically.
 
-h_initial() must match the initial head used to build the MODFLOW model:
-see benchmarks/b2/. MODFLOW takes it as strt and the network takes it as
-hstar. If the two differ they are solving different problems.
+h_initial() must match the initial head used to build the MODFLOW model.
+MODFLOW takes it as strt and the network takes it as hstar. If the two differ
+they are solving different problems.
 
 Coordinates are centred, x, y in [-500, 500]. MODFLOW exports are shifted by
 -500 on load, so the two frames agree.

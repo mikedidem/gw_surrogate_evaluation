@@ -26,11 +26,11 @@ keywords:
   - MODFLOW
   - conservation diagnostics
 preferred-citation:
-  type: article
+  type: unpublished
   title: >-
     Beyond Accuracy: Conservation Diagnostics for Deep Learning Groundwater
     Surrogates
-  journal: "Computers and Geosciences"
+  status: "in review"
   authors:
     - family-names: Edidem
       given-names: Michael
