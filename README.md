@@ -3,8 +3,8 @@
 Companion code for:
 
 > **Beyond Accuracy: Conservation Diagnostics for Deep Learning Groundwater
-> Surrogates.** Michael Edidem, Ruopu Li, Pouria Kharazi. Manuscript under
-> review.
+> Surrogates.** Michael Edidem, Ruopu Li, Pouria Kharazi. *Computers &
+> Geosciences* (2026), 106310. https://doi.org/10.1016/j.cageo.2026.106310
 
 A deep-learning surrogate can reproduce hydraulic head to R² > 0.999 and still
 violate the physics it was trained on. This repository implements a diagnostic
@@ -331,6 +331,17 @@ before being reported, so nothing here can drift from the table it sits beside.
 
 See [`CITATION.cff`](CITATION.cff). Please cite the paper rather than this
 repository alone.
+
+```bibtex
+@article{edidem2026beyond,
+  title   = {Beyond Accuracy: Conservation Diagnostics for Deep Learning Groundwater Surrogates},
+  author  = {Edidem, Michael and Li, Ruopu and Kharazi, Pouria},
+  journal = {Computers \& Geosciences},
+  year    = {2026},
+  pages   = {106310},
+  doi     = {10.1016/j.cageo.2026.106310}
+}
+```
 
 ## License
 
